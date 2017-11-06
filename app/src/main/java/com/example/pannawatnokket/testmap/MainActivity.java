@@ -34,12 +34,17 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback ,LocationListener{
     private GoogleMap googleMap;
+    private Polyline line;
     private ArrayList<LatLng> routePoints;
     private double latitude;
     private double longitude;
+    private double prevLatitude;
+    private double prevLongitude;
     private LatLng latLng;
 
     private LocationManager locManager;
+    private LocationListener locListener;
+    private Location mobileLocation;
 
     private static final int REQUEST_PERMISSION_LOCATION = 255; // int should be between 0 and 255
 
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         routePoints = new ArrayList<LatLng>();
         locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5 * 1000, 1, this);
+        mobileLocation = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
 
@@ -89,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @SuppressLint("MissingPermission")
     @Override
     public void onLocationChanged(Location location) {
+        prevLatitude = latitude;
+        prevLongitude = longitude;
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         latLng = new LatLng(latitude, longitude);
@@ -103,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             LatLng point = routePoints.get(z);
             pOptions.add(point);
         }
-        googleMap.addPolyline(pOptions);
+        line = googleMap.addPolyline(pOptions);
         routePoints.add(latLng);
 
         CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
